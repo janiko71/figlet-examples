@@ -21,13 +21,25 @@ files_list.sort()
 # Creating example file with the text you want
 text = "Hello brave new world!"
 
-for font in files_list:
-    print("Font name:" + font)
-    if font[:7] == "obanner":
-        print("Skipped...")
-    else:
-        cmd = ['figlet', text, '-f', font, '-w', '300']
-        result = subprocess.run(cmd, stdout=subprocess.PIPE)
-        #print(result.stdout.decode())
+with open("output.txt", "w") as output_file:
+
+    for font in files_list:
+        if font[:7] == "obanner":
+            statut = "skipped"
+        else:
+            cmd = ['figlet', text, '-f', font, '-w', '300']
+            try:
+                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            finally:
+                if (result.returncode == 0):
+                    # Everything's fine
+                    output_file.write("Font: {}\n\n".format(font))
+                    output_file.write(result.stdout.decode())
+                    output_file.write("\n\n")
+                    statut = "ok"
+                else:
+                    # Houston, we got a problem
+                    statut = "file error"
+        print("Font {}: {}".format(font, statut))
 
 
